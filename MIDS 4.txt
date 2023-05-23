@@ -1,0 +1,60 @@
+Assignment 4: Download Abalone dataset. (URL: http://archive.ics.uci.edu/ml/datasets/Abalone) 
+a) Predict the number of rings either as a continuous value or as a classification problem. 
+b) Predict the age of abalone from physical measurements using linear regression 
+
+NUMBER OF RINGS PREDICATION USING CLASSIFICATION
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score 
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+df = pd.read_csv("http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data", header=None)
+df.columns = ["sex", "length", "diameter", "height", "whole_weight", "shucked_weight", "viscera_weight", "shell_weight", "rings"] 
+df.head()
+#The code imports the required libraries: pandas, train_test_split from sklearn.model_selection, KNeighborsClassifier from sklearn.neighbors, accuracy_score from sklearn.metrics, numpy, LinearRegression from sklearn.linear_model, and mean_squared_error from sklearn.metrics.
+It reads the Abalone dataset from the given URL into a pandas DataFrame named df. The header=None argument specifies that the dataset does not have a header row. It also assigns meaningful column names to the DataFrame.
+
+df["sex"] = pd.factorize(df["sex"])[0]
+#This line converts the values in the "sex" column to numerical values using factorization. Each unique value in the column is assigned a unique numeric code.
+
+X_train, X_test, y_train, y_test = train_test_split(df.drop("rings", axis=1), df["rings"], test_size=0.2, random_state=42)
+#This line splits the dataset into training and testing sets. It assigns the features (all columns except "rings") to X_train and X_test, and assigns the target variable ("rings") to y_train and y_test. The test_size=0.2 argument specifies that 20% of the data should be used for testing, and random_state=42 sets the random seed for reproducibility.
+
+k = 5
+knn = KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train, y_train)
+#These lines initialize a K-nearest neighbors classifier with n_neighbors=5 and fit it to the training data.
+
+y_pred = knn.predict(X_test)
+print("Number of Rings:", y_pred)
+#This line predicts the number of rings using the trained classifier on the test data and assigns the predictions to y_pred. It then prints the predicted number of rings.
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", 100*accuracy)
+#These lines calculate and print the accuracy of the classifier by comparing the predicted values (y_pred) with the actual values (y_test) from the test set.
+
+
+AGE PREDICATION USING LINEAR REGRESSION
+a = df.drop("rings", axis=1)
+b = df["rings"] + 1.5
+#These lines create new variables a and b. a contains all the features except the "rings" column, and b contains the "rings" column incremented by 1.5. This step converts the number of rings to age in years.
+
+train_size = int(0.8 * len(df))
+a_train, a_test = a[:train_size], a[train_size:]
+b_train, b_test = b[:train_size], b[train_size:]
+#These lines split the features (a) and the target variable (b) into training and testing sets using an 80:20 split based on the dataset's length.
+
+model = LinearRegression()
+model.fit(a_train, b_train)
+#This line creates a Linear Regression model and fits it to the training data (a_train and b_train).
+
+b_pred = model.predict(a_test)
+print("Age of Abalone:", b_pred)
+#This line predicts the age of abalone using the trained linear regression model on the test data (a_test) and assigns the predictions to b_pred. It then prints the predicted ages.
+
+mse = mean_squared_error(b_test, b_pred)
+print("Mean squared error:", mse)
+#These lines calculate and print the mean squared error (MSE) of the predictions by comparing the predicted ages (b_pred) with the actual ages (b_test) from the test set.

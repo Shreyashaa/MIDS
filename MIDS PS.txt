@@ -1,0 +1,246 @@
+Assignment 1: Access an open source dataset “Titanic”. Apply pre-processing techniques on the raw 
+dataset. 
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = pd.read_csv("tested.csv")
+data.head()
+data.dtypes
+data.columns
+
+data['Survived'].value_counts()
+print("Total Number of Passengers in training data... ",len(data))
+print("Number of passengers who survived ",len(data[data['Survived'] == 1 ]))
+print("Number of passengers who didn't survived ",len(data[data['Survived'] == 0]))
+
+data['Sex'].value_counts()
+print("% of men survived: ",100*np.mean(data['Survived'] [data ['Sex'] == 'male'])) 
+print("% of women survived: ",100*np.mean(data['Survived'] [data['Sex'] == 'female']))
+np.mean(data['Survived'] [data ['Sex'] == 'male'])
+
+data['Pclass'].value_counts()
+print("% of passenger who survived in 1st class: ", 100*np.mean(data['Survived'] [data['Pclass'] == 1]))
+print("% of passenger who survived in 2nd class: ", 100*np.mean(data['Survived'] [data['Pclass'] == 2]))
+print("% of passenger who survived in 3rd class: ", 100*np.mean(data['Survived'] [data['Pclass'] == 3]))
+
+data['Age'].value_counts()
+df2=data.copy() 
+df2.isnull().sum()
+int(data['Age'].mean())
+df2['Age'] = df2['Age'].fillna(np.mean(df2['Age'])) 
+
+df2.isnull().sum()
+df2.Embarked.value_counts()
+df2.Fare.value_counts()
+fare = df2['Fare'].dropna()
+df2[df2['Fare'].isnull()]
+
+df2['Cabin'].value_counts()
+df2['Cabin'].mode()
+df2['Cabin'].fillna(df2['Cabin'].mode()[0], inplace = True)
+df2.isnull().sum()
+
+
+
+
+
+
+Assignment 2: Text classification for Sentimental analysis using KNN. (Refer any dataset like Titanic, 
+Twitter, etc.)
+
+
+import pandas as pd
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+df = pd.read_csv('tweets.csv')
+ps = PorterStemmer()           #preproecess the data
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+def preprocess_text(text):
+    # Remove special characters and numbers
+    text = re.sub('[^a-zA-Z]', ' ', text)
+    # Convert text to lowercase
+    text = text.lower()
+    # Tokenize text
+    words = text.split()
+    # Remove stop words
+    words = [word for word in words if not word in stop_words]
+    # Stem words
+    words = [ps.stem(word) for word in words]
+    # Join words
+    text = ' '.join(words)
+    return text 
+
+df['text'] = df['text'].apply(preprocess_text)
+df.columns
+from sklearn.model_selection import train_test_split
+X = df['text']
+y = df['airline']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+from sklearn.feature_extraction.text import CountVectorizer
+
+cv = CountVectorizer(max_features=2000)
+X_train_cv = cv.fit_transform(X_train).toarray()
+X_test_cv = cv.transform(X_test).toarray()
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+k = 2
+knn = KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train_cv, y_train)
+
+y_pred = knn.predict(X_test_cv)
+accuracy = accuracy_score(y_test, y_pred)
+
+print('KNN Accuracy:', accuracy*100)
+
+
+
+
+Assignment 4: Download Abalone dataset. (URL: http://archive.ics.uci.edu/ml/datasets/Abalone) 
+a) Predict the number of rings either as a continuous value or as a classification problem. 
+b) Predict the age of abalone from physical measurements using linear regression 
+
+NUMBER OF RINGS PREDICATION USING CLASSIFICATION
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score 
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv("http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data", header=None)
+df.columns = ["sex", "length", "diameter", "height", "whole_weight", "shucked_weight", "viscera_weight", "shell_weight", "rings"] 
+df.head()
+# Convert the sex column to numerical values
+df["sex"] = pd.factorize(df["sex"])[0]
+# Split the dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(df.drop("rings", axis=1), df["rings"], test_size=0.2, random_state=42)
+# Train a KNN classifier on the training set
+k = 5
+knn = KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train, y_train)
+# Predict the number of rings on the test set
+y_pred = knn.predict(X_test) 
+print("Number of Rings : ",y_pred)
+# Calculate the accuracy of the classifier
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", 100*accuracy)
+
+
+AGE PREDICATION USING LINEAR REGRESSION
+a = df.drop("rings", axis=1)
+b = df["rings"] + 1.5  # Convert the number of rings to age in years
+# Split the dataset into training and test sets
+train_size = int(0.8 * len(df))
+a_train, a_test = a[:train_size], a[train_size:]
+b_train, b_test = b[:train_size], b[train_size:]
+# Fit a linear regression model on the training set
+model = LinearRegression()
+model.fit(a_train, b_train)
+# Predict the age of abalone on the test set
+b_pred = model.predict(a_test)
+print("Age of Abalone: ",b_pred)
+# Calculate the mean squared error of the predictions
+mse = mean_squared_error(b_test, b_pred)
+print("Mean squared error:", mse)
+
+
+
+Assignment 5: We have given a collection of 8 points. 
+P1=[0.1,0.6] 
+P2=[0.15,0.71] 
+P3=[0.08,0.9] 
+P4=[0.16, 0.85] 
+P5=[0.2,0.3] 
+P6=[0.25,0.5] 
+P7=[0.24,0.1] 
+P8=[0.3,0.2]
+Perform the k-mean clustering with initial centroids as m1=P1 =Cluster#1=C1 and 
+m2=P8=cluster#2=C2. 
+Answer the following
+1] Which cluster does P6 belong to? 
+2] What is the population of cluster around m2? 
+3] What is updated value of m1 and m2?
+
+
+from sklearn.cluster import KMeans
+import numpy as np
+# Initialize the dataset
+points = np.array([[0.1, 0.6],
+                   [0.15, 0.71],
+                   [0.08, 0.9],
+                   [0.16, 0.85],
+                   [0.2, 0.3],
+                   [0.25, 0.5],
+                   [0.24, 0.1],
+                   [0.3, 0.2]])
+
+# Initialize the centroids
+C1 = [0.1, 0.6]
+C2 = [0.3, 0.2]
+# Initialize the KMeans model
+kmeans = KMeans(n_clusters=2, init=np.array([C1, C2]))
+# Fit the KMeans model to the dataset
+kmeans.fit(points)
+# Get the cluster labels and centroids
+labels = kmeans.labels_
+centroids = kmeans.cluster_centers_
+print("Labels : ",labels)
+# 1)P6 belong to cluster?
+p6_label = kmeans.predict([[0.25, 0.5]])
+if p6_label == 0:
+    print("P6 belongs to Cluster#1=C1")
+else:
+    print("P6 belongs to Cluster#2=C2")
+# 2)population of cluster around m2?
+m2_population = np.sum(labels == 1)
+print("Population of cluster around m2 is:", m2_population)
+# 3) updated value of m1 and m2?
+m1 = centroids[0]
+m2 = centroids[1]
+print("Updated value of m1 is:", m1)
+print("Updated value of m2 is:", m2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

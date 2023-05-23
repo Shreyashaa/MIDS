@@ -1,0 +1,66 @@
+Assignment 2: Text classification for Sentimental analysis using KNN. (Refer any dataset like Titanic, 
+Twitter, etc.)
+
+import pandas as pd
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+df = pd.read_csv('tweets.csv')
+#These lines import the necessary libraries: pandas for data manipulation, re for regular expressions, nltk for natural language processing, stopwords from nltk.corpus for a list of stop words, and PorterStemmer from nltk.stem for word stemming. It also reads a CSV file called 'tweets.csv' into a pandas DataFrame called df.
+
+
+ps = PorterStemmer()
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+#These lines initialize the PorterStemmer and download the stopwords from NLTK for English. The stopwords are stored in a set called stop_words.
+
+
+def preprocess_text(text):
+    # Remove special characters and numbers
+    text = re.sub('[^a-zA-Z]', ' ', text)
+    # Convert text to lowercase
+    text = text.lower()
+    # Tokenize text
+    words = text.split()
+    # Remove stop words
+    words = [word for word in words if not word in stop_words]
+    # Stem words
+    words = [ps.stem(word) for word in words]
+    # Join words
+    text = ' '.join(words)
+    return text
+
+df['text'] = df['text'].apply(preprocess_text)
+df.columns
+#This code defines a function called preprocess_text that preprocesses the text data. It removes special characters and numbers, converts the text to lowercase, tokenizes the text into individual words, removes stop words using the stop_words set, applies word stemming using the PorterStemmer, and finally joins the words back into a string. The preprocess_text function is then applied to the 'text' column of the DataFrame using df['text'].apply(preprocess_text). The columns of the DataFrame are printed using df.columns.
+
+
+from sklearn.model_selection import train_test_split
+X = df['text']
+y = df['airline']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#These lines split the preprocessed 'text' column as the feature variable X and the 'airline' column as the target variable y. The train_test_split function is used to split the data into training and testing sets with a test size of 20% (test_size=0.2) and a random state of 42 (random_state=42).
+
+
+from sklearn.feature_extraction.text import CountVectorizer
+cv = CountVectorizer(max_features=2000)
+X_train_cv = cv.fit_transform(X_train).toarray()
+X_test_cv = cv.transform(X_test).toarray()
+#These lines import the CountVectorizer from scikit-learn to convert the text data into numerical features. It initializes a CountVectorizer object with a maximum of 2000 features (max_features=2000). The training data (X_train) is then transformed into a matrix of token counts using fit_transform, and the testing data (X_test) is transformed using transform. The resulting arrays are converted to dense arrays using toarray().
+
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+k = 2
+knn = KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train_cv, y_train)
+
+y_pred = knn.predict(X_test_cv)
+accuracy = accuracy_score(y_test, y_pred)
+
+print('KNN Accuracy:', accuracy*100)
+#These lines import the KNeighborsClassifier from scikit-learn for KNN classification and the accuracy_score metric for evaluation. A value of k=2 is chosen for the number of neighbors. The KNN classifier is initialized with n_neighbors=k, fitted to the training data (X_train_cv and y_train), and used to predict the labels for the testing data (X_test_cv) stored in y_pred. The accuracy of the predictions is calculated using accuracy_score, and the result is printed as 'KNN Accuracy' multiplied by 100.
+
+Overall, this code preprocesses the text data, splits it into training and testing sets, applies the KNN algorithm for text classification, and calculates the accuracy of the predictions.

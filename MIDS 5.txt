@@ -1,0 +1,70 @@
+Assignment 5: We have given a collection of 8 points. 
+P1=[0.1,0.6] 
+P2=[0.15,0.71] 
+P3=[0.08,0.9] 
+P4=[0.16, 0.85] 
+P5=[0.2,0.3] 
+P6=[0.25,0.5] 
+P7=[0.24,0.1] 
+P8=[0.3,0.2]
+Perform the k-mean clustering with initial centroids as m1=P1 =Cluster#1=C1 and 
+m2=P8=cluster#2=C2. 
+Answer the following
+1] Which cluster does P6 belong to? 
+2] What is the population of cluster around m2? 
+3] What is updated value of m1 and m2?
+
+
+from sklearn.cluster import KMeans
+import numpy as np
+#These lines import the necessary libraries: KMeans from sklearn.cluster for performing k-means clustering, and numpy for numerical operations.
+
+
+points = np.array([[0.1, 0.6],
+                   [0.15, 0.71],
+                   [0.08, 0.9],
+                   [0.16, 0.85],
+                   [0.2, 0.3],
+                   [0.25, 0.5],
+                   [0.24, 0.1],
+                   [0.3, 0.2]])
+#This creates a numpy array called points that contains the given collection of 8 points. Each point is represented by a pair of coordinates.
+
+
+C1 = [0.1, 0.6]
+C2 = [0.3, 0.2]
+#These lines initialize the centroids C1 and C2 as lists of coordinates.
+
+
+kmeans = KMeans(n_clusters=2, init=np.array([C1, C2]))
+#This creates a KMeans object called kmeans with 2 clusters and initializes the centroids using the provided C1 and C2 values.
+
+
+kmeans.fit(points)
+#This fits the kmeans model to the points dataset, performing the k-means clustering.
+
+
+labels = kmeans.labels_
+centroids = kmeans.cluster_centers_
+print("Labels:", labels)
+#These lines retrieve the cluster labels assigned to each point and the final centroids obtained by the clustering. The labels are stored in the labels variable, and the centroids are stored in the centroids variable. The labels are then printed.
+
+
+p6_label = kmeans.predict([[0.25, 0.5]])
+if p6_label == 0:
+    print("P6 belongs to Cluster#1=C1")
+else:
+    print("P6 belongs to Cluster#2=C2")
+#This predicts the cluster label for point P6 ([0.25, 0.5]) using the predict method. It checks if the label is 0 or 1 and prints the corresponding cluster assignment.
+
+
+m2_population = np.sum(labels == 1)
+print("Population of the cluster around m2 is:", m2_population)
+#This calculates the population of the cluster around m2 by summing up the number of points with label 1 (using the condition labels == 1). The result is stored in m2_population and printed.
+
+
+m1 = centroids[0]
+m2 = centroids[1]
+print("Updated value of m1 is:", m1)
+print("Updated value of m2 is:", m2)
+#These lines retrieve the updated centroids after clustering. The coordinates of m1 are assigned as the first centroid (centroids[0]), and the coordinates of m2 are assigned as the second centroid (centroids[1]). The updated values of m1 and m2 are then printed.

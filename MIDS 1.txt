@@ -1,0 +1,73 @@
+Assignment 1: Access an open source dataset “Titanic”. Apply pre-processing techniques on the raw 
+dataset
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+#These lines import the necessary libraries: pandas for data manipulation, numpy for numerical computations, and matplotlib.pyplot for data visualization.
+
+
+data = pd.read_csv("tested.csv")
+#This reads the "tested.csv" file and loads it into a pandas DataFrame called data.
+
+data.head()
+data.dtypes
+data.columns
+#These lines display the first few rows of the dataset (data.head()), the data types of the columns (data.dtypes), and the column names (data.columns).
+
+
+data['Survived'].value_counts()
+print("Total Number of Passengers in training data... ",len(data))
+print("Number of passengers who survived ",len(data[data['Survived'] == 1 ]))
+print("Number of passengers who didn't survive ",len(data[data['Survived'] == 0]))
+#These lines calculate and print the following information:
+The count of passengers who survived and who did not survive (data['Survived'].value_counts()).
+The total number of passengers in the dataset (len(data)).
+The number of passengers who survived (len(data[data['Survived'] == 1])).
+The number of passengers who did not survive (len(data[data['Survived'] == 0])).
+
+
+data['Sex'].value_counts()
+print("% of men survived: ",100*np.mean(data['Survived'][data['Sex'] == 'male'])) 
+print("% of women survived: ",100*np.mean(data['Survived'][data['Sex'] == 'female']))
+np.mean(data['Survived'][data['Sex'] == 'male'])
+#These lines calculate and print the following information:
+The count of passengers by sex (data['Sex'].value_counts()).
+The percentage of men who survived (% of men survived).
+The percentage of women who survived (% of women survived).
+The mean survival rate for men (np.mean(data['Survived'][data['Sex'] == 'male'])).
+
+
+data['Pclass'].value_counts()
+print("% of passengers who survived in 1st class: ", 100*np.mean(data['Survived'][data['Pclass'] == 1]))
+print("% of passengers who survived in 2nd class: ", 100*np.mean(data['Survived'][data['Pclass'] == 2]))
+print("% of passengers who survived in 3rd class: ", 100*np.mean(data['Survived'][data['Pclass'] == 3]))
+#These lines calculate and print the following information:
+The count of passengers by passenger class (data['Pclass'].value_counts()).
+The percentage of passengers who survived in the 1st, 2nd, and 3rd class.
+
+
+data['Age'].value_counts()
+df2=data.copy() 
+df2.isnull().sum()
+int(data['Age'].mean())
+df2['Age'] = df2['Age'].fillna(np.mean(df2['Age']))
+#These lines handle missing values in the 'Age' column. It calculates the count of values for each age, creates a copy of the DataFrame called df2, checks for missing values in df2 and prints their count (df2.isnull().sum()), calculates the mean age (int(data['Age'].mean())), and fills the missing values in the 'Age' column with the mean age using fillna().
+
+
+df2.isnull().sum()
+df2.Embarked.value_counts()
+df2.Fare.value_counts()
+fare = df2['Fare'].dropna()
+df2[df2['Fare'].isnull()]
+#These lines handle missing values in the 'Embarked' and 'Fare' columns. It checks for missing values in df2 and prints their count (df2.isnull().sum()), calculates the count of values for each category in the 'Embarked' column (df2.Embarked.value_counts()), calculates the count of values for each fare in the 'Fare' column (df2.Fare.value_counts()), creates a new variable 'fare' by dropping the missing values from the 'Fare' column (fare = df2['Fare'].dropna()), and displays the rows where the 'Fare' value is missing (df2[df2['Fare'].isnull()]).
+
+
+df2['Cabin'].value_counts()
+df2['Cabin'].mode()
+df2['Cabin'].fillna(df2['Cabin'].mode()[0], inplace=True)
+df2.isnull().sum()
+#These lines handle missing values in the 'Cabin' column. It calculates the count of values for each cabin (df2['Cabin'].value_counts()), calculates the mode of the 'Cabin' column (df2['Cabin'].mode()), fills the missing values in the 'Cabin' column with the mode value using fillna(), and checks for missing values in df2 after filling (df2.isnull().sum()).
+
+#This code performs various preprocessing steps on the "Titanic" dataset, such as handling missing values, analyzing survival rates based on different features, and printing relevant information about the dataset.
